@@ -1,10 +1,8 @@
 pollutantmean <- function(directory, pollutant, id = 1:332){
-  fileNames <- vector()
   data <- data.frame()
+  files <- list.files(directory, full.names = T)
   for (i in id) {
-    name <- nameById(i)
-    filePath <- file.path(directory, name)
-    csv <- read.csv(filePath, comment.char = "")
+    csv <- read.csv(files[i], comment.char = "")
     data <- rbind(data, csv)
   }
   pollutantData <- data[, pollutant]
@@ -15,10 +13,10 @@ pollutantmean <- function(directory, pollutant, id = 1:332){
 
 complete <- function(directory, id = 1:332){
   result <- data.frame()
+  files <- list.files(directory, full.names = T)
   for (i in id) {
     name <- nameById(i)
-    filePath <- file.path(directory, name)
-    csv <- read.csv(filePath, comment.char = "")
+    csv <- read.csv(files[i], comment.char = "")
     nobs <- nrow(csv[complete.cases(csv), ])
     
     result<- rbind(result, c(i, nobs))
@@ -30,10 +28,9 @@ complete <- function(directory, id = 1:332){
 corr <- function(directory, threshold = 0){
   result <- numeric()
   
-  files <- dir(directory)
+  files <- list.files(directory, full.names = T)
   for (file in files) {
-    filePath <- file.path(directory, file)
-    data <- read.csv(filePath, comment.char = "")
+    data <- read.csv(file, comment.char = "")
     data <- data[complete.cases(data), ]
     rows <- nrow(data)
     
@@ -45,17 +42,4 @@ corr <- function(directory, threshold = 0){
     }
   }
   result
-}
-
-nameById <- function(id){
-  if (id < 10) {
-    name <- paste("00", id, ".csv", sep = "")
-  }
-  else if (id >= 10 & id < 100) {
-    name <- paste("0", id, ".csv", sep = "")
-  }
-  else {
-    name <- paste(id, ".csv", sep = "")
-  }
-  name
 }

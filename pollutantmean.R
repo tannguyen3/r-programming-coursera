@@ -15,7 +15,6 @@ pollutantmean <- function(directory, pollutant, id = 1:332){
 
 complete <- function(directory, id = 1:332){
   result <- data.frame()
-  result <- rbind(result, c("id", "nobs"))
   for (i in id) {
     name <- nameById(i)
     filePath <- file.path(directory, name)
@@ -23,6 +22,27 @@ complete <- function(directory, id = 1:332){
     nobs <- nrow(csv[complete.cases(csv), ])
     
     result<- rbind(result, c(i, nobs))
+  }
+  colnames(result )<-c("id", "nobs")
+  result
+}
+
+corr <- function(directory, threshold = 0){
+  result <- numeric()
+  
+  files <- dir(directory)
+  for (file in files) {
+    filePath <- file.path(directory, file)
+    data <- read.csv(filePath, comment.char = "")
+    data <- data[complete.cases(data), ]
+    rows <- nrow(data)
+    
+    if (rows > threshold) {
+        sulfate <- data[, 'sulfate']
+        nitrate <- data[, 'nitrate']
+        cor <- cor(sulfate, nitrate, use  = "complete.obs")
+        result <- c(result, cor)
+    }
   }
   result
 }
